@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Maintenance Tracker</title>
+    <title>Life Tracker</title>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -16,671 +16,881 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
         
-        // Initialize Supabase
-        const supabase = supabase.createClient(
+        const supabaseClient = window.supabase.createClient(
             'https://spenpcmolydeumtskdqj.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwZW5wY21vbHlkZXVtdHNrZHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk0NTg5ODcsImV4cCI6MjA4NTAzNDk4N30.NE48F2WNqTwPeH9SvdPaeD7f2u4kbY_wYjSu-6xh1-0'
         );
 
-        // Fixed user ID for syncing across all devices
         const USER_ID = 'erik_main_user';
 
-        // Lucide icons
-        const Plus = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M5 12h14"/><path d="M12 5v14"/>
-            </svg>
+        // Icons
+        const Plus = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        );
+        const Car = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+        );
+        const PawPrint = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><circle cx="9" cy="10" r="2"/><circle cx="15" cy="14" r="2"/><path d="M9 18a5 5 0 0 1 6 0"/></svg>
+        );
+        const Home = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        );
+        const Bell = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        );
+        const ArrowLeft = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        );
+        const Trash2 = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        );
+        const Upload = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        );
+        const X = ({ size = 24 }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         );
 
-        const Car = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
-                <circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
-            </svg>
-        );
+        const CATEGORY_CONFIGS = {
+            vehicles: {
+                name: 'Vehicles',
+                icon: Car,
+                color: 'blue',
+                itemFields: ['year', 'make', 'model', 'current_mileage'],
+                logTypes: ['Oil Change', 'Tire Rotation', 'Brake Service', 'Air Filter', 'Transmission Service', 'Coolant Flush', 'Battery Replacement', 'Inspection', 'Other']
+            },
+            pets: {
+                name: 'Pets',
+                icon: PawPrint,
+                color: 'purple',
+                itemFields: ['name', 'type', 'birthdate'],
+                logTypes: ['Vet Visit', 'Vaccination', 'Medication', 'Grooming', 'Weight Check', 'Other']
+            }
+        };
 
-        const Wrench = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-            </svg>
-        );
-
-        const Calendar = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>
-            </svg>
-        );
-
-        const DollarSign = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-        );
-
-        const Trash2 = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
-            </svg>
-        );
-
-        const AlertCircle = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
-            </svg>
-        );
-
-        const RefreshCw = ({ size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>
-            </svg>
-        );
-
-        const VehicleMaintenanceTracker = () => {
-            const [vehicles, setVehicles] = useState([]);
-            const [records, setRecords] = useState([]);
+        const LifeTracker = () => {
+            const [view, setView] = useState('main'); // main, category
+            const [selectedCategory, setSelectedCategory] = useState(null);
+            const [categories, setCategories] = useState([]);
+            const [items, setItems] = useState([]);
+            const [logs, setLogs] = useState([]);
             const [reminders, setReminders] = useState([]);
-            const [activeTab, setActiveTab] = useState('dashboard');
-            const [selectedVehicle, setSelectedVehicle] = useState(null);
-            const [showAddVehicle, setShowAddVehicle] = useState(false);
-            const [showAddRecord, setShowAddRecord] = useState(false);
-            const [showAddReminder, setShowAddReminder] = useState(false);
             const [loading, setLoading] = useState(true);
-            const [syncing, setSyncing] = useState(false);
+            const [showQuickAdd, setShowQuickAdd] = useState(false);
 
-            // Load data from Supabase
-            const loadData = async () => {
+            useEffect(() => {
+                initializeData();
+            }, []);
+
+            const initializeData = async () => {
                 setLoading(true);
                 try {
-                    const [vehiclesRes, recordsRes, remindersRes] = await Promise.all([
-                        supabase.from('vehicles').select('*').eq('user_id', USER_ID),
-                        supabase.from('records').select('*').eq('user_id', USER_ID),
-                        supabase.from('reminders').select('*').eq('user_id', USER_ID)
-                    ]);
+                    // Check if categories exist, if not create them
+                    const { data: existingCats } = await supabaseClient
+                        .from('categories')
+                        .select('*')
+                        .eq('user_id', USER_ID);
 
-                    if (vehiclesRes.data) setVehicles(vehiclesRes.data);
-                    if (recordsRes.data) setRecords(recordsRes.data);
-                    if (remindersRes.data) setReminders(remindersRes.data);
+                    if (!existingCats || existingCats.length === 0) {
+                        // Create default categories
+                        const defaultCategories = [
+                            { id: 'vehicles', user_id: USER_ID, name: 'Vehicles', icon: 'car' },
+                            { id: 'pets', user_id: USER_ID, name: 'Pets', icon: 'paw' }
+                        ];
+                        await supabaseClient.from('categories').insert(defaultCategories);
+                        
+                        // Migrate old vehicle data if it exists
+                        await migrateOldData();
+                    }
+
+                    // Load all data
+                    await loadAllData();
                 } catch (error) {
-                    console.error('Error loading data:', error);
+                    console.error('Error initializing:', error);
                 } finally {
                     setLoading(false);
                 }
             };
 
-            useEffect(() => {
-                loadData();
-            }, []);
-
-            const addVehicle = async (vehicle) => {
-                const newVehicle = { 
-                    ...vehicle, 
-                    id: Date.now().toString(),
-                    user_id: USER_ID,
-                    current_mileage: parseInt(vehicle.currentMileage)
-                };
-                delete newVehicle.currentMileage;
-
-                setSyncing(true);
+            const migrateOldData = async () => {
                 try {
-                    const { data, error } = await supabase.from('vehicles').insert([newVehicle]).select();
-                    if (error) throw error;
-                    if (data) {
-                        setVehicles([...vehicles, data[0]]);
-                        if (!selectedVehicle) setSelectedVehicle(data[0].id);
-                    }
-                } catch (error) {
-                    console.error('Error adding vehicle:', error);
-                } finally {
-                    setSyncing(false);
-                    setShowAddVehicle(false);
-                }
-            };
-
-            const addRecord = async (record) => {
-                const newRecord = { 
-                    ...record, 
-                    id: Date.now().toString(), 
-                    vehicle_id: selectedVehicle,
-                    user_id: USER_ID
-                };
-
-                setSyncing(true);
-                try {
-                    const { data, error } = await supabase.from('records').insert([newRecord]).select();
-                    if (error) throw error;
-                    if (data) setRecords([...records, data[0]]);
-                } catch (error) {
-                    console.error('Error adding record:', error);
-                } finally {
-                    setSyncing(false);
-                    setShowAddRecord(false);
-                }
-            };
-
-            const addReminder = async (reminder) => {
-                const newReminder = { 
-                    ...reminder, 
-                    id: Date.now().toString(), 
-                    vehicle_id: selectedVehicle,
-                    user_id: USER_ID
-                };
-
-                setSyncing(true);
-                try {
-                    const { data, error } = await supabase.from('reminders').insert([newReminder]).select();
-                    if (error) throw error;
-                    if (data) setReminders([...reminders, data[0]]);
-                } catch (error) {
-                    console.error('Error adding reminder:', error);
-                } finally {
-                    setSyncing(false);
-                    setShowAddReminder(false);
-                }
-            };
-
-            const deleteRecord = async (id) => {
-                setSyncing(true);
-                try {
-                    const { error } = await supabase.from('records').delete().eq('id', id);
-                    if (error) throw error;
-                    setRecords(records.filter(r => r.id !== id));
-                } catch (error) {
-                    console.error('Error deleting record:', error);
-                } finally {
-                    setSyncing(false);
-                }
-            };
-
-            const deleteReminder = async (id) => {
-                setSyncing(true);
-                try {
-                    const { error } = await supabase.from('reminders').delete().eq('id', id);
-                    if (error) throw error;
-                    setReminders(reminders.filter(r => r.id !== id));
-                } catch (error) {
-                    console.error('Error deleting reminder:', error);
-                } finally {
-                    setSyncing(false);
-                }
-            };
-
-            const updateVehicleMileage = async (mileage) => {
-                const newMileage = parseInt(mileage) || 0;
-                setSyncing(true);
-                try {
-                    const { error } = await supabase
+                    // Get old vehicles
+                    const { data: oldVehicles } = await supabaseClient
                         .from('vehicles')
-                        .update({ current_mileage: newMileage })
-                        .eq('id', selectedVehicle);
-                    
-                    if (error) throw error;
-                    setVehicles(vehicles.map(v => 
-                        v.id === selectedVehicle ? { ...v, current_mileage: newMileage } : v
-                    ));
+                        .select('*')
+                        .eq('user_id', USER_ID);
+
+                    if (oldVehicles && oldVehicles.length > 0) {
+                        // Convert to new format
+                        const newItems = oldVehicles.map(v => ({
+                            id: v.id,
+                            user_id: USER_ID,
+                            category_id: 'vehicles',
+                            name: `${v.year} ${v.make} ${v.model}`,
+                            details: {
+                                year: v.year,
+                                make: v.make,
+                                model: v.model,
+                                current_mileage: v.current_mileage
+                            }
+                        }));
+                        await supabaseClient.from('items').insert(newItems);
+
+                        // Get old records
+                        const { data: oldRecords } = await supabaseClient
+                            .from('records')
+                            .select('*')
+                            .eq('user_id', USER_ID);
+
+                        if (oldRecords && oldRecords.length > 0) {
+                            const newLogs = oldRecords.map(r => ({
+                                id: r.id,
+                                item_id: r.vehicle_id,
+                                user_id: USER_ID,
+                                log_type: r.service,
+                                date: r.date,
+                                cost: r.cost,
+                                notes: `${r.provider ? 'Provider: ' + r.provider + '\n' : ''}${r.notes || ''}`.trim()
+                            }));
+                            await supabaseClient.from('logs').insert(newLogs);
+                        }
+                    }
                 } catch (error) {
-                    console.error('Error updating mileage:', error);
-                } finally {
-                    setSyncing(false);
+                    console.error('Migration error:', error);
                 }
             };
 
-            const getActiveReminders = () => {
-                if (!selectedVehicle) return [];
-                const vehicle = vehicles.find(v => v.id === selectedVehicle);
-                if (!vehicle) return [];
+            const loadAllData = async () => {
+                const [catsRes, itemsRes, logsRes, remindersRes] = await Promise.all([
+                    supabaseClient.from('categories').select('*').eq('user_id', USER_ID),
+                    supabaseClient.from('items').select('*').eq('user_id', USER_ID),
+                    supabaseClient.from('logs').select('*').eq('user_id', USER_ID),
+                    supabaseClient.from('reminders_v2').select('*').eq('user_id', USER_ID)
+                ]);
 
-                return reminders.filter(r => {
-                    if (r.vehicle_id !== selectedVehicle) return false;
-                    
-                    if (r.type === 'mileage') {
-                        return vehicle.current_mileage >= r.mileage;
-                    } else {
-                        return new Date(r.date) <= new Date();
-                    }
-                });
+                if (catsRes.data) setCategories(catsRes.data);
+                if (itemsRes.data) setItems(itemsRes.data);
+                if (logsRes.data) setLogs(logsRes.data);
+                if (remindersRes.data) setReminders(remindersRes.data);
+            };
+
+            const getUpcomingReminders = () => {
+                const today = new Date();
+                return reminders
+                    .map(r => {
+                        const item = items.find(i => i.id === r.item_id);
+                        if (!item) return null;
+                        
+                        let dueDate;
+                        if (r.reminder_type === 'date') {
+                            dueDate = new Date(r.due_date);
+                        } else if (r.reminder_type === 'recurring') {
+                            // Simple recurring logic - can be enhanced
+                            dueDate = new Date(r.due_date);
+                        }
+                        
+                        return {
+                            ...r,
+                            item,
+                            dueDate,
+                            isOverdue: dueDate < today,
+                            daysUntil: Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24))
+                        };
+                    })
+                    .filter(r => r !== null)
+                    .sort((a, b) => a.dueDate - b.dueDate)
+                    .slice(0, 10);
             };
 
             if (loading) {
                 return (
                     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                         <div className="text-center">
-                            <RefreshCw size={48} className="mx-auto text-blue-600 animate-spin mb-4" />
-                            <p className="text-gray-600">Loading your data...</p>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                            <p className="text-gray-600">Loading...</p>
                         </div>
+                    </div>
+                );
+            }
+
+            if (view === 'category' && selectedCategory) {
+                return (
+                    <CategoryView
+                        category={selectedCategory}
+                        items={items.filter(i => i.category_id === selectedCategory)}
+                        logs={logs}
+                        reminders={reminders}
+                        onBack={() => setView('main')}
+                        onRefresh={loadAllData}
+                    />
+                );
+            }
+
+            const upcomingReminders = getUpcomingReminders();
+
+            return (
+                <div className="min-h-screen bg-gray-50 pb-20">
+                    <div className="max-w-4xl mx-auto p-6">
+                        <h1 className="text-4xl font-bold text-gray-900 mb-8">Life Tracker</h1>
+
+                        {/* Upcoming Reminders */}
+                        {upcomingReminders.length > 0 && (
+                            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Bell size={24} className="text-blue-600" />
+                                    <h2 className="text-xl font-semibold">Upcoming Reminders</h2>
+                                </div>
+                                <div className="space-y-3">
+                                    {upcomingReminders.map(reminder => (
+                                        <div key={reminder.id} className={`p-3 rounded-lg border ${reminder.isOverdue ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="font-semibold">{reminder.title}</p>
+                                                    <p className="text-sm text-gray-600">{reminder.item.name}</p>
+                                                </div>
+                                                <p className={`text-sm font-medium ${reminder.isOverdue ? 'text-red-600' : 'text-blue-600'}`}>
+                                                    {reminder.isOverdue ? 'Overdue' : `${reminder.daysUntil} days`}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Categories */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(CATEGORY_CONFIGS).map(([id, config]) => {
+                                const Icon = config.icon;
+                                const categoryItems = items.filter(i => i.category_id === id);
+                                return (
+                                    <button
+                                        key={id}
+                                        onClick={() => {
+                                            setSelectedCategory(id);
+                                            setView('category');
+                                        }}
+                                        className="bg-white rounded-lg shadow-sm p-8 hover:shadow-md transition-shadow text-left"
+                                    >
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className={`p-3 rounded-lg bg-${config.color}-100`}>
+                                                <Icon size={32} className={`text-${config.color}-600`} />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-2xl font-bold text-gray-900">{config.name}</h2>
+                                                <p className="text-gray-500">{categoryItems.length} items</p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Quick Add Button */}
+                    <button
+                        onClick={() => setShowQuickAdd(true)}
+                        className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <Plus size={32} />
+                    </button>
+
+                    {showQuickAdd && (
+                        <QuickAddModal
+                            onClose={() => setShowQuickAdd(false)}
+                            onRefresh={loadAllData}
+                            categories={categories}
+                            items={items}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+        const CategoryView = ({ category, items, logs, reminders, onBack, onRefresh }) => {
+            const [selectedItem, setSelectedItem] = useState(null);
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [showAddItem, setShowAddItem] = useState(false);
+            const [showAddLog, setShowAddLog] = useState(false);
+
+            const config = CATEGORY_CONFIGS[category];
+            const Icon = config.icon;
+
+            const categoryLogs = logs.filter(l => items.some(i => i.id === l.item_id));
+            const categoryReminders = reminders.filter(r => items.some(i => i.id === r.item_id));
+
+            if (items.length === 0) {
+                return (
+                    <div className="min-h-screen bg-gray-50">
+                        <div className="max-w-4xl mx-auto p-6">
+                            <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-6 hover:text-gray-900">
+                                <ArrowLeft size={20} />
+                                Back
+                            </button>
+                            
+                            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                                <Icon size={64} className="mx-auto text-gray-400 mb-4" />
+                                <h2 className="text-2xl font-semibold text-gray-700 mb-2">No {config.name} Yet</h2>
+                                <p className="text-gray-500 mb-6">Add your first {config.name.toLowerCase()} to get started</p>
+                                <button
+                                    onClick={() => setShowAddItem(true)}
+                                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+                                >
+                                    Add {config.name}
+                                </button>
+                            </div>
+                        </div>
+
+                        {showAddItem && (
+                            <AddItemModal
+                                category={category}
+                                onClose={() => setShowAddItem(false)}
+                                onRefresh={onRefresh}
+                            />
+                        )}
                     </div>
                 );
             }
 
             return (
                 <div className="min-h-screen bg-gray-50">
-                    <div className="max-w-6xl mx-auto p-4">
+                    <div className="max-w-6xl mx-auto p-6">
+                        <button onClick={onBack} className="flex items-center gap-2 text-gray-600 mb-6 hover:text-gray-900">
+                            <ArrowLeft size={20} />
+                            Back to Dashboard
+                        </button>
+
                         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
                             <div className="flex items-center justify-between mb-4">
-                                <div className="flex items-center gap-3">
-                                    <h1 className="text-3xl font-bold text-gray-900">Vehicle Maintenance Tracker</h1>
-                                    {syncing && <RefreshCw size={20} className="text-blue-600 animate-spin" />}
-                                </div>
+                                <h1 className="text-3xl font-bold text-gray-900">{config.name}</h1>
                                 <button
-                                    onClick={() => setShowAddVehicle(true)}
+                                    onClick={() => setShowAddItem(true)}
                                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                                 >
                                     <Plus size={20} />
-                                    Add Vehicle
+                                    Add {config.name}
                                 </button>
                             </div>
 
-                            {vehicles.length > 0 && (
-                                <div className="flex gap-2 overflow-x-auto pb-2">
-                                    {vehicles.map(vehicle => (
-                                        <button
-                                            key={vehicle.id}
-                                            onClick={() => setSelectedVehicle(vehicle.id)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap ${
-                                                selectedVehicle === vehicle.id
-                                                    ? 'bg-blue-600 text-white'
-                                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                            }`}
-                                        >
-                                            <Car size={18} />
-                                            {vehicle.year} {vehicle.make} {vehicle.model}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                            <div className="flex gap-2 overflow-x-auto pb-2">
+                                {items.map(item => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => setSelectedItem(item.id)}
+                                        className={`px-4 py-2 rounded-lg whitespace-nowrap ${
+                                            selectedItem === item.id
+                                                ? `bg-${config.color}-600 text-white`
+                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                        }`}
+                                    >
+                                        {item.name}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        {vehicles.length === 0 ? (
-                            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-                                <Car size={64} className="mx-auto text-gray-400 mb-4" />
-                                <h2 className="text-2xl font-semibold text-gray-700 mb-2">No Vehicles Added</h2>
-                                <p className="text-gray-500 mb-6">Get started by adding your first vehicle</p>
-                                <button
-                                    onClick={() => setShowAddVehicle(true)}
-                                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-                                >
-                                    Add Your First Vehicle
-                                </button>
-                            </div>
-                        ) : (
+                        {selectedItem && (
                             <>
                                 <div className="flex gap-2 mb-6">
                                     <button
                                         onClick={() => setActiveTab('dashboard')}
-                                        className={`px-4 py-2 rounded-lg ${
-                                            activeTab === 'dashboard' ? 'bg-white shadow-sm' : 'bg-transparent hover:bg-white/50'
-                                        }`}
+                                        className={`px-4 py-2 rounded-lg ${activeTab === 'dashboard' ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
                                     >
                                         Dashboard
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('history')}
-                                        className={`px-4 py-2 rounded-lg ${
-                                            activeTab === 'history' ? 'bg-white shadow-sm' : 'bg-transparent hover:bg-white/50'
-                                        }`}
+                                        className={`px-4 py-2 rounded-lg ${activeTab === 'history' ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
                                     >
-                                        Service History
+                                        History
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('reminders')}
-                                        className={`px-4 py-2 rounded-lg ${
-                                            activeTab === 'reminders' ? 'bg-white shadow-sm' : 'bg-transparent hover:bg-white/50'
-                                        }`}
+                                        className={`px-4 py-2 rounded-lg ${activeTab === 'reminders' ? 'bg-white shadow-sm' : 'hover:bg-white/50'}`}
                                     >
                                         Reminders
                                     </button>
                                 </div>
 
-                                {activeTab === 'dashboard' && selectedVehicle && (
-                                    <div className="space-y-6">
-                                        {getActiveReminders().length > 0 && (
-                                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <AlertCircle size={20} className="text-amber-600" />
-                                                    <h3 className="font-semibold text-amber-900">Maintenance Due</h3>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    {getActiveReminders().map(reminder => (
-                                                        <div key={reminder.id} className="text-amber-800">
-                                                            {reminder.service} is due
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <Wrench size={24} className="text-blue-600" />
-                                                    <h3 className="font-semibold text-gray-700">Total Services</h3>
-                                                </div>
-                                                <p className="text-3xl font-bold text-gray-900">
-                                                    {records.filter(r => r.vehicle_id === selectedVehicle).length}
-                                                </p>
-                                            </div>
-
-                                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <DollarSign size={24} className="text-green-600" />
-                                                    <h3 className="font-semibold text-gray-700">Total Spent</h3>
-                                                </div>
-                                                <p className="text-3xl font-bold text-gray-900">
-                                                    ${records
-                                                        .filter(r => r.vehicle_id === selectedVehicle)
-                                                        .reduce((sum, r) => sum + parseFloat(r.cost || 0), 0)
-                                                        .toFixed(2)}
-                                                </p>
-                                            </div>
-
-                                            <div className="bg-white rounded-lg shadow-sm p-6">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <Calendar size={24} className="text-purple-600" />
-                                                    <h3 className="font-semibold text-gray-700">Last Service</h3>
-                                                </div>
-                                                <p className="text-lg font-bold text-gray-900">
-                                                    {records.filter(r => r.vehicle_id === selectedVehicle).length > 0
-                                                        ? new Date(
-                                                            Math.max(
-                                                                ...records
-                                                                    .filter(r => r.vehicle_id === selectedVehicle)
-                                                                    .map(r => new Date(r.date))
-                                                            )
-                                                        ).toLocaleDateString()
-                                                        : 'No services yet'}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-white rounded-lg shadow-sm p-6">
-                                            <h3 className="font-semibold text-gray-700 mb-4">Update Current Mileage</h3>
-                                            <div className="flex gap-3">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Current mileage"
-                                                    defaultValue={vehicles.find(v => v.id === selectedVehicle)?.current_mileage || ''}
-                                                    onBlur={(e) => {
-                                                        if (e.target.value && e.target.value !== vehicles.find(v => v.id === selectedVehicle)?.current_mileage?.toString()) {
-                                                            updateVehicleMileage(e.target.value);
-                                                        }
-                                                    }}
-                                                    className="flex-1 px-4 py-2 border rounded-lg"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-white rounded-lg shadow-sm p-6">
-                                            <h3 className="font-semibold text-gray-700 mb-4">Quick Actions</h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                <button
-                                                    onClick={() => setShowAddRecord(true)}
-                                                    className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700"
-                                                >
-                                                    <Plus size={20} />
-                                                    Log Service
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowAddReminder(true)}
-                                                    className="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700"
-                                                >
-                                                    <Plus size={20} />
-                                                    Add Reminder
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                {activeTab === 'dashboard' && (
+                                    <DashboardTab
+                                        item={items.find(i => i.id === selectedItem)}
+                                        logs={categoryLogs.filter(l => l.item_id === selectedItem)}
+                                        onAddLog={() => setShowAddLog(true)}
+                                    />
                                 )}
 
                                 {activeTab === 'history' && (
-                                    <div className="bg-white rounded-lg shadow-sm p-6">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h2 className="text-xl font-semibold">Service History</h2>
-                                            <button
-                                                onClick={() => setShowAddRecord(true)}
-                                                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                                            >
-                                                <Plus size={20} />
-                                                Add Record
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            {records
-                                                .filter(r => r.vehicle_id === selectedVehicle)
-                                                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                                                .map(record => (
-                                                    <div key={record.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <div>
-                                                                <h3 className="font-semibold text-lg">{record.service}</h3>
-                                                                <p className="text-gray-600">{new Date(record.date).toLocaleDateString()}</p>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => deleteRecord(record.id)}
-                                                                className="text-red-600 hover:text-red-700"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
-                                                        </div>
-                                                        <div className="grid grid-cols-2 gap-4 text-sm">
-                                                            <div>
-                                                                <span className="text-gray-600">Mileage:</span>
-                                                                <span className="ml-2 font-medium">{record.mileage?.toLocaleString()} mi</span>
-                                                            </div>
-                                                            <div>
-                                                                <span className="text-gray-600">Cost:</span>
-                                                                <span className="ml-2 font-medium">${parseFloat(record.cost).toFixed(2)}</span>
-                                                            </div>
-                                                        </div>
-                                                        {record.provider && (
-                                                            <p className="text-sm text-gray-600 mt-2">Provider: {record.provider}</p>
-                                                        )}
-                                                        {record.notes && (
-                                                            <p className="text-sm text-gray-700 mt-2">{record.notes}</p>
-                                                        )}
-                                                    </div>
-                                                ))}
-
-                                            {records.filter(r => r.vehicle_id === selectedVehicle).length === 0 && (
-                                                <div className="text-center py-12 text-gray-500">
-                                                    No service records yet. Add your first service!
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
+                                    <HistoryTab
+                                        logs={categoryLogs.filter(l => l.item_id === selectedItem)}
+                                        onRefresh={onRefresh}
+                                    />
                                 )}
 
                                 {activeTab === 'reminders' && (
-                                    <div className="bg-white rounded-lg shadow-sm p-6">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h2 className="text-xl font-semibold">Maintenance Reminders</h2>
-                                            <button
-                                                onClick={() => setShowAddReminder(true)}
-                                                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-                                            >
-                                                <Plus size={20} />
-                                                Add Reminder
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-4">
-                                            {reminders
-                                                .filter(r => r.vehicle_id === selectedVehicle)
-                                                .map(reminder => {
-                                                    const isActive = getActiveReminders().some(ar => ar.id === reminder.id);
-                                                    return (
-                                                        <div
-                                                            key={reminder.id}
-                                                            className={`border rounded-lg p-4 ${isActive ? 'bg-amber-50 border-amber-300' : 'hover:bg-gray-50'}`}
-                                                        >
-                                                            <div className="flex justify-between items-start">
-                                                                <div>
-                                                                    <h3 className="font-semibold text-lg">{reminder.service}</h3>
-                                                                    <p className="text-gray-600">
-                                                                        {reminder.type === 'mileage'
-                                                                            ? `At ${reminder.mileage.toLocaleString()} miles`
-                                                                            : `On ${new Date(reminder.date).toLocaleDateString()}`}
-                                                                    </p>
-                                                                    {isActive && (
-                                                                        <p className="text-amber-700 font-medium mt-1">⚠ Due Now</p>
-                                                                    )}
-                                                                </div>
-                                                                <button
-                                                                    onClick={() => deleteReminder(reminder.id)}
-                                                                    className="text-red-600 hover:text-red-700"
-                                                                >
-                                                                    <Trash2 size={18} />
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
-
-                                            {reminders.filter(r => r.vehicle_id === selectedVehicle).length === 0 && (
-                                                <div className="text-center py-12 text-gray-500">
-                                                    No reminders set. Add one to stay on track!
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
+                                    <RemindersTab
+                                        reminders={categoryReminders.filter(r => r.item_id === selectedItem)}
+                                        onRefresh={onRefresh}
+                                    />
                                 )}
                             </>
                         )}
                     </div>
 
-                    {showAddVehicle && (
-                        <AddVehicleModal
-                            onClose={() => setShowAddVehicle(false)}
-                            onAdd={addVehicle}
+                    {showAddItem && (
+                        <AddItemModal
+                            category={category}
+                            onClose={() => setShowAddItem(false)}
+                            onRefresh={() => {
+                                onRefresh();
+                                setShowAddItem(false);
+                            }}
                         />
                     )}
 
-                    {showAddRecord && (
-                        <AddRecordModal
-                            onClose={() => setShowAddRecord(false)}
-                            onAdd={addRecord}
-                        />
-                    )}
-
-                    {showAddReminder && (
-                        <AddReminderModal
-                            onClose={() => setShowAddReminder(false)}
-                            onAdd={addReminder}
+                    {showAddLog && selectedItem && (
+                        <AddLogModal
+                            category={category}
+                            itemId={selectedItem}
+                            onClose={() => setShowAddLog(false)}
+                            onRefresh={() => {
+                                onRefresh();
+                                setShowAddLog(false);
+                            }}
                         />
                     )}
                 </div>
             );
         };
 
-        const AddVehicleModal = ({ onClose, onAdd }) => {
-            const [formData, setFormData] = useState({
-                year: '',
-                make: '',
-                model: '',
-                currentMileage: ''
-            });
+        const DashboardTab = ({ item, logs, onAddLog }) => {
+            const totalCost = logs.reduce((sum, l) => sum + parseFloat(l.cost || 0), 0);
+            const lastLog = logs.length > 0 ? logs.sort((a, b) => new Date(b.date) - new Date(a.date))[0] : null;
 
-            const handleSubmit = () => {
-                if (formData.year && formData.make && formData.model && formData.currentMileage) {
-                    onAdd(formData);
-                }
+            return (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-white rounded-lg shadow-sm p-6">
+                            <h3 className="font-semibold text-gray-700 mb-2">Total Logs</h3>
+                            <p className="text-3xl font-bold text-gray-900">{logs.length}</p>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-sm p-6">
+                            <h3 className="font-semibold text-gray-700 mb-2">Total Spent</h3>
+                            <p className="text-3xl font-bold text-gray-900">${totalCost.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white rounded-lg shadow-sm p-6">
+                            <h3 className="font-semibold text-gray-700 mb-2">Last Log</h3>
+                            <p className="text-lg font-bold text-gray-900">
+                                {lastLog ? new Date(lastLog.date).toLocaleDateString() : 'None'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow-sm p-6">
+                        <h3 className="font-semibold text-gray-700 mb-4">Quick Actions</h3>
+                        <button
+                            onClick={onAddLog}
+                            className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700"
+                        >
+                            Add New Log
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const HistoryTab = ({ logs, onRefresh }) => {
+            const deleteLog = async (id) => {
+                if (!confirm('Delete this log?')) return;
+                await supabaseClient.from('logs').delete().eq('id', id);
+                onRefresh();
+            };
+
+            const sortedLogs = [...logs].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            return (
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h2 className="text-xl font-semibold mb-6">History</h2>
+                    <div className="space-y-4">
+                        {sortedLogs.map(log => (
+                            <div key={log.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h3 className="font-semibold text-lg">{log.log_type}</h3>
+                                        <p className="text-gray-600">{new Date(log.date).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {log.cost && <span className="font-medium">${parseFloat(log.cost).toFixed(2)}</span>}
+                                        <button onClick={() => deleteLog(log.id)} className="text-red-600 hover:text-red-700">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                                {log.notes && <p className="text-sm text-gray-700 mt-2">{log.notes}</p>}
+                            </div>
+                        ))}
+                        {sortedLogs.length === 0 && (
+                            <div className="text-center py-12 text-gray-500">
+                                No logs yet. Add your first one!
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const RemindersTab = ({ reminders, onRefresh }) => {
+            const deleteReminder = async (id) => {
+                if (!confirm('Delete this reminder?')) return;
+                await supabaseClient.from('reminders_v2').delete().eq('id', id);
+                onRefresh();
             };
 
             return (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h2 className="text-2xl font-bold mb-4">Add Vehicle</h2>
-                        <div className="space-y-4">
-                            <input
-                                type="number"
-                                placeholder="Year"
-                                value={formData.year}
-                                onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Make (e.g., Toyota)"
-                                value={formData.make}
-                                onChange={(e) => setFormData({ ...formData, make: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Model (e.g., Camry)"
-                                value={formData.model}
-                                onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Current Mileage"
-                                value={formData.currentMileage}
-                                onChange={(e) => setFormData({ ...formData, currentMileage: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleSubmit}
-                                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-                                >
-                                    Add Vehicle
-                                </button>
-                                <button
-                                    onClick={onClose}
-                                    className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h2 className="text-xl font-semibold mb-6">Reminders</h2>
+                    <div className="space-y-4">
+                        {reminders.map(reminder => (
+                            <div key={reminder.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="font-semibold text-lg">{reminder.title}</h3>
+                                        <p className="text-gray-600">
+                                            {reminder.reminder_type === 'date' 
+                                                ? `Due: ${new Date(reminder.due_date).toLocaleDateString()}`
+                                                : `Recurring: ${reminder.recurrence}`
+                                            }
+                                        </p>
+                                    </div>
+                                    <button onClick={() => deleteReminder(reminder.id)} className="text-red-600 hover:text-red-700">
+                                        <Trash2 size={18} />
+                                    </button>
+                                </div>
                             </div>
+                        ))}
+                        {reminders.length === 0 && (
+                            <div className="text-center py-12 text-gray-500">
+                                No reminders set. Add one to stay on track!
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const QuickAddModal = ({ onClose, onRefresh, categories, items }) => {
+            const [step, setStep] = useState(1);
+            const [formData, setFormData] = useState({
+                category: '',
+                itemId: '',
+                logType: '',
+                date: new Date().toISOString().split('T')[0],
+                cost: '',
+                notes: '',
+                file: null
+            });
+
+            const handleSubmit = async () => {
+                if (!formData.itemId || !formData.logType) return;
+
+                const newLog = {
+                    id: Date.now().toString(),
+                    item_id: formData.itemId,
+                    user_id: USER_ID,
+                    log_type: formData.logType,
+                    date: formData.date,
+                    cost: formData.cost ? parseFloat(formData.cost) : null,
+                    notes: formData.notes
+                };
+
+                await supabaseClient.from('logs').insert([newLog]);
+                
+                if (formData.file) {
+                    const fileName = `${Date.now()}_${formData.file.name}`;
+                    await supabaseClient.storage.from('attachments').upload(fileName, formData.file);
+                }
+
+                onRefresh();
+                onClose();
+            };
+
+            const config = formData.category ? CATEGORY_CONFIGS[formData.category] : null;
+            const categoryItems = formData.category ? items.filter(i => i.category_id === formData.category) : [];
+
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold">Quick Add</h2>
+                            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {step >= 1 && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Category</label>
+                                    <select
+                                        value={formData.category}
+                                        onChange={(e) => setFormData({ ...formData, category: e.target.value, itemId: '' })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    >
+                                        <option value="">Select category...</option>
+                                        {Object.entries(CATEGORY_CONFIGS).map(([id, config]) => (
+                                            <option key={id} value={id}>{config.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {step >= 2 && formData.category && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Item</label>
+                                    <select
+                                        value={formData.itemId}
+                                        onChange={(e) => setFormData({ ...formData, itemId: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    >
+                                        <option value="">Select item...</option>
+                                        {categoryItems.map(item => (
+                                            <option key={item.id} value={item.id}>{item.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {step >= 3 && formData.itemId && config && (
+                                <div>
+                                    <label className="block text-sm font-medium mb-2">Log Type</label>
+                                    <select
+                                        value={formData.logType}
+                                        onChange={(e) => setFormData({ ...formData, logType: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    >
+                                        <option value="">Select type...</option>
+                                        {config.logTypes.map(type => (
+                                            <option key={type} value={type}>{type}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {formData.logType && (
+                                <>
+                                    <input
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="Cost ($) - optional"
+                                        value={formData.cost}
+                                        onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <textarea
+                                        placeholder="Notes - optional"
+                                        value={formData.notes}
+                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                        rows="3"
+                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Attachment (optional)</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*,.pdf"
+                                            onChange={(e) => setFormData({ ...formData, file: e.target.files[0] })}
+                                            className="w-full px-4 py-2 border rounded-lg"
+                                        />
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={handleSubmit}
+                                disabled={!formData.itemId || !formData.logType}
+                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                            >
+                                Add Log
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        const AddRecordModal = ({ onClose, onAdd }) => {
-            const [formData, setFormData] = useState({
-                service: '',
-                date: new Date().toISOString().split('T')[0],
-                mileage: '',
-                cost: '',
-                provider: '',
-                notes: ''
-            });
+        const AddItemModal = ({ category, onClose, onRefresh }) => {
+            const config = CATEGORY_CONFIGS[category];
+            const [formData, setFormData] = useState({});
+            const [photoFile, setPhotoFile] = useState(null);
 
-            const commonServices = [
-                'Oil Change',
-                'Tire Rotation',
-                'Brake Service',
-                'Air Filter',
-                'Transmission Service',
-                'Coolant Flush',
-                'Battery Replacement',
-                'Inspection',
-                'Other'
-            ];
+            const handleSubmit = async () => {
+                const newItem = {
+                    id: Date.now().toString(),
+                    user_id: USER_ID,
+                    category_id: category,
+                    name: category === 'vehicles' 
+                        ? `${formData.year} ${formData.make} ${formData.model}`
+                        : formData.name,
+                    details: formData
+                };
 
-            const handleSubmit = () => {
-                if (formData.service && formData.date && formData.mileage && formData.cost) {
-                    onAdd({ ...formData, mileage: parseInt(formData.mileage), cost: parseFloat(formData.cost) });
+                await supabaseClient.from('items').insert([newItem]);
+
+                if (photoFile) {
+                    const fileName = `${newItem.id}_photo`;
+                    await supabaseClient.storage.from('attachments').upload(fileName, photoFile);
                 }
+
+                onRefresh();
             };
 
             return (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        <h2 className="text-2xl font-bold mb-4">Log Service</h2>
+                        <h2 className="text-2xl font-bold mb-4">Add {config.name}</h2>
+                        <div className="space-y-4">
+                            {category === 'vehicles' && (
+                                <>
+                                    <input
+                                        type="number"
+                                        placeholder="Year"
+                                        onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Make"
+                                        onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Model"
+                                        onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder="Current Mileage"
+                                        onChange={(e) => setFormData({ ...formData, current_mileage: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </>
+                            )}
+                            {category === 'pets' && (
+                                <>
+                                    <input
+                                        type="text"
+                                        placeholder="Name"
+                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Type (e.g., Dog, Cat)"
+                                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="date"
+                                        placeholder="Birthdate"
+                                        onChange={(e) => setFormData({ ...formData, birthdate: e.target.value })}
+                                        className="w-full px-4 py-2 border rounded-lg"
+                                    />
+                                </>
+                            )}
+                            <div>
+                                <label className="block text-sm font-medium mb-2">Photo (optional)</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => setPhotoFile(e.target.files[0])}
+                                    className="w-full px-4 py-2 border rounded-lg"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={handleSubmit}
+                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Add
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AddLogModal = ({ category, itemId, onClose, onRefresh }) => {
+            const config = CATEGORY_CONFIGS[category];
+            const [formData, setFormData] = useState({
+                logType: '',
+                date: new Date().toISOString().split('T')[0],
+                cost: '',
+                notes: ''
+            });
+            const [file, setFile] = useState(null);
+
+            const handleSubmit = async () => {
+                if (!formData.logType) return;
+
+                const newLog = {
+                    id: Date.now().toString(),
+                    item_id: itemId,
+                    user_id: USER_ID,
+                    log_type: formData.logType,
+                    date: formData.date,
+                    cost: formData.cost ? parseFloat(formData.cost) : null,
+                    notes: formData.notes
+                };
+
+                await supabaseClient.from('logs').insert([newLog]);
+
+                if (file) {
+                    const fileName = `${newLog.id}_${file.name}`;
+                    await supabaseClient.storage.from('attachments').upload(fileName, file);
+                }
+
+                onRefresh();
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-2xl font-bold mb-4">Add Log</h2>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Service Type</label>
+                                <label className="block text-sm font-medium mb-2">Log Type</label>
                                 <select
-                                    value={formData.service}
-                                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                                    value={formData.logType}
+                                    onChange={(e) => setFormData({ ...formData, logType: e.target.value })}
                                     className="w-full px-4 py-2 border rounded-lg"
                                 >
-                                    <option value="">Select service...</option>
-                                    {commonServices.map(service => (
-                                        <option key={service} value={service}>{service}</option>
+                                    <option value="">Select type...</option>
+                                    {config.logTypes.map(type => (
+                                        <option key={type} value={type}>{type}</option>
                                     ))}
                                 </select>
                             </div>
@@ -692,138 +902,49 @@
                             />
                             <input
                                 type="number"
-                                placeholder="Mileage at service"
-                                value={formData.mileage}
-                                onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
-                            <input
-                                type="number"
                                 step="0.01"
-                                placeholder="Cost ($)"
+                                placeholder="Cost ($) - optional"
                                 value={formData.cost}
                                 onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
                                 className="w-full px-4 py-2 border rounded-lg"
                             />
-                            <input
-                                type="text"
-                                placeholder="Service provider (optional)"
-                                value={formData.provider}
-                                onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
                             <textarea
-                                placeholder="Notes (optional)"
+                                placeholder="Notes - optional"
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 className="w-full px-4 py-2 border rounded-lg"
                                 rows="3"
                             />
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleSubmit}
-                                    className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-                                >
-                                    Add Record
-                                </button>
-                                <button
-                                    onClick={onClose}
-                                    className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const AddReminderModal = ({ onClose, onAdd }) => {
-            const [formData, setFormData] = useState({
-                service: '',
-                type: 'mileage',
-                mileage: '',
-                date: ''
-            });
-
-            const handleSubmit = () => {
-                if (!formData.service) return;
-                if (formData.type === 'mileage' && !formData.mileage) return;
-                if (formData.type === 'date' && !formData.date) return;
-
-                const reminder = {
-                    service: formData.service,
-                    type: formData.type
-                };
-                if (formData.type === 'mileage') {
-                    reminder.mileage = parseInt(formData.mileage);
-                } else {
-                    reminder.date = formData.date;
-                }
-                onAdd(reminder);
-            };
-
-            return (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full">
-                        <h2 className="text-2xl font-bold mb-4">Add Reminder</h2>
-                        <div className="space-y-4">
-                            <input
-                                type="text"
-                                placeholder="Service (e.g., Oil Change)"
-                                value={formData.service}
-                                onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg"
-                            />
                             <div>
-                                <label className="block text-sm font-medium mb-1">Reminder Type</label>
-                                <select
-                                    value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
-                                >
-                                    <option value="mileage">By Mileage</option>
-                                    <option value="date">By Date</option>
-                                </select>
-                            </div>
-                            {formData.type === 'mileage' ? (
+                                <label className="block text-sm font-medium mb-2">Attachment (optional)</label>
                                 <input
-                                    type="number"
-                                    placeholder="Mileage (e.g., 75000)"
-                                    value={formData.mileage}
-                                    onChange={(e) => setFormData({ ...formData, mileage: e.target.value })}
+                                    type="file"
+                                    accept="image/*,.pdf"
+                                    onChange={(e) => setFile(e.target.files[0])}
                                     className="w-full px-4 py-2 border rounded-lg"
                                 />
-                            ) : (
-                                <input
-                                    type="date"
-                                    value={formData.date}
-                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    className="w-full px-4 py-2 border rounded-lg"
-                                />
-                            )}
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={handleSubmit}
-                                    className="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700"
-                                >
-                                    Add Reminder
-                                </button>
-                                <button
-                                    onClick={onClose}
-                                    className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
-                                >
-                                    Cancel
-                                </button>
                             </div>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button
+                                onClick={handleSubmit}
+                                className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+                            >
+                                Add Log
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300"
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        ReactDOM.render(<VehicleMaintenanceTracker />, document.getElementById('root'));
+        ReactDOM.render(<LifeTracker />, document.getElementById('root'));
     </script>
 </body>
 </html>
